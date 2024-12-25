@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { updateToPaste, addToPaste } from "../Redux/PasteSlice";
 import toast from "react-hot-toast";
+import Paste from "./paste";
 
 function Home() {
   const [title, setTitle] = useState("");
@@ -48,31 +49,36 @@ function Home() {
   }, [pasteId]);
 
   return (
-    <div className="max-w-[1170px] mx-auto h-screen place-content-between">
-      <input
+    <div className="max-w-[1170px] mt-5 mx-auto h-screen place-content-between">
+    <div className="title  flex justify-center">
+    <input
         type="text"
-        className="border mt-4 w-[50%] rounded p-3"
+       className="border border-gray-300  w-[30%] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-primaryColor"
         placeholder="Enter Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
       <button
         onClick={createPaste}
-        className="border bg-slate-600 text-white mx-5 p-2 rounded"
+       className="border border-transparent
+        bg-slate-600 text-white p-2 mx-5 rounded-lg hover:bg-slate-700 "
       >
         {pasteId ? "Update Paste" : "Create my Paste"}
       </button>
+    </div>
 
       {/* Text area */}
-      <div>
+      <div className="flex flex-col items-center justify-center space-y-4 p-4">
+        {/* <div className="textarea-head bg-[#333333] h-8 w-[60%]"></div> */}
         <textarea
           value={value}
           placeholder="Enter Content Here"
           onChange={(e) => setValue(e.target.value)}
           rows={20}
-          className="mt-4 rounded-2xl w-[60%] p-4 border"
+          className=" rounded-2xl w-[60%] p-4 border"
         ></textarea>
       </div>
+      <Paste/>
     </div>
   );
 }
