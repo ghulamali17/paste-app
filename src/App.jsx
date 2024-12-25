@@ -4,6 +4,7 @@ import ViewPaste from "./components/ViewPaste";
 import Home from "./components/Home";
 import Paste from "./components/paste";
 import AppLayout from "./components/AppLayout";
+
 function App() {
   const appRoute = createBrowserRouter([
     {
@@ -19,12 +20,17 @@ function App() {
           element: <Paste />,
         },
         {
-          path: "/viewpaste",
+          path: "/pastes/:id/view",
           element: <ViewPaste />,
+        },
+        {
+          path: "/pastes/:id",
+          element: <Home />,
         },
       ],
     },
   ]);
+
   return (
     <>
       <RouterProvider router={appRoute} />
