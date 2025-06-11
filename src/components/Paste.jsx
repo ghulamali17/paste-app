@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFromPaste } from "../Redux/PasteSlice";
 import { Link } from "react-router-dom";
-import { toast } from "react-hot-toast";           // ← import toast
+import { toast } from "react-hot-toast";        
 
 function Paste() {
   const pastes = useSelector((state) => state.paste.pastes);
@@ -25,13 +25,11 @@ function Paste() {
 
     try {
       if (navigator.clipboard && window.isSecureContext) {
-        // Modern API in secure context
         await navigator.clipboard.writeText(text);
       } else {
-        // Fallback for insecure contexts
         const textarea = document.createElement("textarea");
         textarea.value = text;
-        textarea.style.position = "fixed";  // avoid reflow
+        textarea.style.position = "fixed"; 
         textarea.style.top = "-1000px";
         document.body.appendChild(textarea);
         textarea.focus();
