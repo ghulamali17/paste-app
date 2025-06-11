@@ -1,102 +1,115 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFromPaste } from "../Redux/PasteSlice";
-import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { toast } from "react-hot-toast";           // ← import toast
 
 function Paste() {
   const pastes = useSelector((state) => state.paste.pastes);
   const [searchTerm, setSearchTerm] = useState("");
   const dispatch = useDispatch();
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  const pasteId = searchParams.get("pasteId");
-
-  // Filter search term
   const filteredData = pastes.filter((paste) =>
     paste.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Delete handler
-  const deleteHandler = (pasteId) => {
-    dispatch(removeFromPaste(pasteId));
+  const handleDelete = (id) => {
+    dispatch(removeFromPaste(id));
   };
 
-  // Copy handler
-  const handleCopy = (content) => {
-    navigator.clipboard.writeText(content || "");
-    toast.success("Text copied to clipboard!");
+  const handleCopy = async (text) => {
+    if (!text) {
+      toast.error("Nothing to copy!");
+      return;
+    }
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        // Modern API in secure context
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for insecure contexts
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";  // avoid reflow
+        textarea.style.top = "-1000px";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      toast.success("Text copied to clipboard!");
+    } catch (err) {
+      console.error("Copy failed:", err);
+      toast.error("Failed to copy");
+    }
   };
 
-  // Convert date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return `${date.getDate()} ${date.toLocaleString("default", {
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-US", {
+      day: "numeric",
       month: "short",
-    })}, ${date.getFullYear()}`;
-  };
+      year: "numeric",
+    });
 
   return (
-    <div className="h-screen max-w-[1170px] mx-auto text-white">
-     
-      {/* Display pastes */}
-      <div className="bg-gray-800 mt-10 max-w-[600px]  rounded-md mx-auto p-3">
+    <div className="max-w-4xl mx-auto mt-6">
       <input
-        type="search"
-        className="border text-black  rounded-sm w-[96%] p-3 mt-4 mx-3 "
-        placeholder="Search here"
+        type="text"
+        placeholder="Search by title"
+        className="w-full border text-black border-gray-300 p-3 rounded-md mb-6"
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-        {filteredData.length > 0 ? (
-          filteredData.map((paste, index) => (
-            <div key={index}>
-              <div className="bg-slate-600 rounded-lg p-9 mt-4">
-                <h3 className="text-xl font-bold ">{paste.title}</h3>
-                <p>{`${paste.content.substring(0, 100)}.....`}</p>
-                <p className="text-xl text-end">
-                  {formatDate(paste.createdAt)}
-                </p>
-                <div className="buttons flex justify-evenly">
-                  <Link
-                    className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700"
-                    to={`/pastes/${paste._id}`}
-                  >
-                    Edit
-                  </Link>
 
-                  <Link
-                    to={`/pastes/${paste._id}/view`}
-                    className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700"
-                  >
-                    View
-                  </Link>
-
-                  <button
-                    onClick={() => deleteHandler(paste._id)}
-                    className="bg-red-500 text-white py-2 px-4 rounded shadow-lg hover:shadow-xl"
-                  >
-                    Delete
-                  </button>
-
-                  <button
-                    onClick={() => handleCopy(paste.content)}
-                    className="bg-blue-500 text-white py-2 px-4 rounded shadow-lg hover:shadow-xl"
-                  >
-                    Copy
-                  </button>
-
-                  <button className="bg-blue-500 text-white py-2 px-4 rounded shadow-lg hover:shadow-xl">
-                    Share
-                  </button>
-                </div>
-              </div>
+      {filteredData.length > 0 ? (
+        filteredData.map((paste) => (
+          <div
+            key={paste._id}
+            className="bg-white rounded-lg shadow p-6 mb-4 border border-gray-200"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-xl font-semibold text-gray-800">
+                {paste.title}
+              </h3>
+              <span className="text-sm text-gray-500">
+                {formatDate(paste.createdAt)}
+              </span>
             </div>
-          ))
-        ) : (
-          <p className="text-xl font-bold text-yellow-500">No results found</p>
-        )}
-      </div>
+            <p className="text-gray-600 mb-4 line-clamp-3">
+              {paste.content.substring(0, 120)}...
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to={`/pastes/${paste._id}`}
+                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+              >
+                Edit
+              </Link>
+              <Link
+                to={`/pastes/${paste._id}/view`}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                View
+              </Link>
+              <button
+                onClick={() => handleDelete(paste._id)}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => handleCopy(paste.content)}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        ))
+      ) : (
+        <p className="text-gray-500 text-center">No pastes found.</p>
+      )}
     </div>
   );
 }

@@ -1,26 +1,64 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleTheme } from "../Redux/ThemeSlice";
 
 function Navbar() {
+  const dispatch = useDispatch();
+  const theme = useSelector((state) => state.theme.mode);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+  }, [theme]);
+
   return (
-    <div>
-      <nav className="flex justify-around h-[60px] text-black items-center shadow-md bg-white">
-        <div className="logo font-bold text-3xl ">
-          <h1>Logo</h1>
-        </div>
-        <ul className="flex gap-3 text-2xl ">
-          <li>
-            <NavLink to={"/"}>Home</NavLink>
-          </li>
-          <li>
-            <NavLink to={"/paste"}>Pastes</NavLink>
-          </li>
-          <li>
-            <NavLink to={"/"}>More</NavLink>
-          </li>
-        </ul>
-      </nav>
-    </div>
+    <nav className="flex justify-between items-center px-6 py-3 bg-white dark:bg-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
+      {/* Logo */}
+      <div className="text-2xl font-extrabold text-indigo-600 tracking-wide">
+        CodeSnip
+      </div>
+
+      {/* Navigation links */}
+      <ul className="flex gap-6 text-lg items-center">
+        <li>
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `hover:text-indigo-600 transition ${
+                isActive ? "text-indigo-600 font-semibold" : ""
+              }`
+            }
+          >
+            Home
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="/paste"
+            className={({ isActive }) =>
+              `hover:text-indigo-600 transition ${
+                isActive ? "text-indigo-600 font-semibold" : ""
+              }`
+            }
+          >
+            Pastes
+          </NavLink>
+        </li>
+        <li>
+          <button
+            onClick={() => dispatch(toggleTheme())}
+            className="bg-indigo-600 text-white px-4 py-1.5 rounded-md hover:bg-indigo-700 transition"
+          >
+            {theme === "light" ? "Dark Mode" : "Light Mode"}
+          </button>
+        </li>
+      </ul>
+    </nav>
   );
 }
 

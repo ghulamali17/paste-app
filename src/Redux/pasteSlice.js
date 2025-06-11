@@ -40,6 +40,7 @@ export const pasteSlice = createSlice({
       localStorage.setItem("pastes", JSON.stringify(state.pastes));
       toast.success("Paste Removed");
     },
+    
   },
 });
 
