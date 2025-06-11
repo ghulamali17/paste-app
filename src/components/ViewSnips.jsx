@@ -2,7 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-function ViewPaste() {
+function ViewSnips() {
   const { id } = useParams();
   const allPaste = useSelector((state) => state.paste.pastes);
 
@@ -19,7 +19,7 @@ function ViewPaste() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
       <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center">View Paste</h1>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center">View Snips</h1>
 
         <div className="space-y-6">
           <div>
@@ -56,4 +56,4 @@ function ViewPaste() {
   );
 }
 
-export default ViewPaste;
+export default ViewSnips;

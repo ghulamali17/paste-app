@@ -1,27 +1,30 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
-import ViewPaste from "./components/ViewPaste";
+import ViewSnips from "./components/ViewSnips";
 import Home from "./components/Home";
-import Paste from "./components/paste";
 import AppLayout from "./components/AppLayout";
+import Snips from "./components/Snips";
+import NotFound from "./components/NotFound";
+
 
 function App() {
   const appRoute = createBrowserRouter([
     {
       path: "/",
       element: <AppLayout />,
+      errorElement: <NotFound />, 
       children: [
         {
           path: "/",
           element: <Home />,
         },
         {
-          path: "/paste",
-          element: <Paste />,
+          path: "/snips",
+          element: <Snips />,
         },
         {
-          path: "/pastes/:id/view",
-          element: <ViewPaste />,
+          path: "/snips/:id/view",
+          element: <ViewSnips />,
         },
         {
           path: "/pastes/:id",
@@ -31,11 +34,7 @@ function App() {
     },
   ]);
 
-  return (
-    <>
-      <RouterProvider router={appRoute} />
-    </>
-  );
+  return <RouterProvider router={appRoute} />;
 }
 
 export default App;

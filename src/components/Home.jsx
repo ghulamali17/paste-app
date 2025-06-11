@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { updateToPaste, addToPaste } from "../Redux/PasteSlice";
 import toast from "react-hot-toast";
-import Paste from "./paste";
+import Snips from "./Snips";
 
 function Home() {
   const [title, setTitle] = useState("");
@@ -11,7 +11,7 @@ function Home() {
   const { id: pasteId } = useParams();
   const dispatch = useDispatch();
   const allPaste = useSelector((state) => state.paste.pastes);
-  const theme = useSelector((state) => state.theme.mode); // <- theme access
+  const theme = useSelector((state) => state.theme.mode);
 
   useEffect(() => {
     if (pasteId) {
@@ -38,8 +38,10 @@ function Home() {
 
     if (pasteId) {
       dispatch(updateToPaste(paste));
+      toast.success("Snip updated!");
     } else {
       dispatch(addToPaste(paste));
+      toast.success("Snip created!");
       setTitle("");
       setValue("");
     }
@@ -57,9 +59,7 @@ function Home() {
         }`}
       >
         <h1 className="text-3xl font-bold mb-6 text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-            {pasteId ? "Edit Snip" : "Create a New Snip"}
-          </h1>
+          {pasteId ? "Edit Snip" : "Create a New Snip"}
         </h1>
 
         <div className="space-y-4">
@@ -90,15 +90,15 @@ function Home() {
               onClick={createPaste}
               className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-md hover:bg-indigo-700 transition"
             >
-              {pasteId ? "Update Paste" : "Create Paste"}
+              {pasteId ? "Update Snip" : "Create Snip"}
             </button>
           </div>
         </div>
       </div>
 
-      {/* List of Pastes */}
+      {/* List of Snips */}
       <div className="mt-12">
-        <Paste />
+        <Snips />
       </div>
     </div>
   );

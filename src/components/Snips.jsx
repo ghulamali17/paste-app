@@ -4,7 +4,7 @@ import { removeFromPaste } from "../Redux/PasteSlice";
 import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";        
 
-function Paste() {
+function Snips() {
   const pastes = useSelector((state) => state.paste.pastes);
   const [searchTerm, setSearchTerm] = useState("");
   const dispatch = useDispatch();
@@ -85,7 +85,7 @@ function Paste() {
                 Edit
               </Link>
               <Link
-                to={`/pastes/${paste._id}/view`}
+                to={`/snips/${paste._id}/view`}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
               >
                 View
@@ -112,4 +112,4 @@ function Paste() {
   );
 }
 
-export default Paste;
+export default Snips;

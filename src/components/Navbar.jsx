@@ -39,14 +39,14 @@ function Navbar() {
         </li>
         <li>
           <NavLink
-            to="/paste"
+            to="/snips"
             className={({ isActive }) =>
               `hover:text-indigo-600 transition ${
                 isActive ? "text-indigo-600 font-semibold" : ""
               }`
             }
           >
-            Pastes
+            Snips
           </NavLink>
         </li>
         <li>
