@@ -1,61 +1,69 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { updateToPaste, addToPaste } from "../Redux/PasteSlice";
 import toast from "react-hot-toast";
 import Snips from "./Snips";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
+import { app } from "../Firebase/firebase";
+import { useSelector } from "react-redux";
 
 function Home() {
+  const db = getFirestore(app);
+  const { id: pasteId } = useParams();
+  const theme = useSelector((state) => state.theme.mode);
+  const user = useSelector((state) => state.user.currentUser);
+
   const [title, setTitle] = useState("");
   const [value, setValue] = useState("");
-  const { id: pasteId } = useParams();
-  const dispatch = useDispatch();
-  const allPaste = useSelector((state) => state.paste.pastes);
-  const theme = useSelector((state) => state.theme.mode);
 
+  // Load snip data when editing
   useEffect(() => {
-    if (pasteId) {
-      const paste = allPaste.find((p) => p._id === pasteId);
-      if (paste) {
-        setTitle(paste.title);
-        setValue(paste.content);
+    const fetchSnip = async () => {
+      if (pasteId) {
+        const snipRef = doc(db, "snips", pasteId);
+        const snipSnap = await getDoc(snipRef);
+        if (snipSnap.exists()) {
+          const data = snipSnap.data();
+          setTitle(data.title);
+          setValue(data.content);
+        } else {
+          toast.error("Snip not found.");
+        }
       }
-    }
-  }, [pasteId, allPaste]);
+    };
 
-  const createPaste = () => {
-    if (!title.trim() || !value.trim()) {
-      toast.error("Title and content are required.");
-      return;
-    }
+    fetchSnip();
+  }, [pasteId]);
 
-    const paste = {
+  const handleSubmit = async () => {
+    if (!user) return toast.error("Please log in to save a snip.");
+    if (!title.trim() || !value.trim()) return toast.error("Both fields are required.");
+
+    const snipData = {
+      uid: user.uid,
       title: title.trim(),
       content: value.trim(),
-      _id: pasteId || Date.now().toString(36),
       createdAt: new Date().toISOString(),
     };
 
-    if (pasteId) {
-      dispatch(updateToPaste(paste));
-    } else {
-      dispatch(addToPaste(paste));
-      setTitle("");
-      setValue("");
+    try {
+      if (pasteId) {
+        await setDoc(doc(db, "snips", pasteId), snipData);
+        toast.success("Snip updated.");
+      } else {
+        await addDoc(collection(db, "snips"), snipData);
+        toast.success("Snip saved.");
+        setTitle("");
+        setValue("");
+      }
+    } catch (error) {
+      console.error("Firestore error:", error);
+      toast.error("Failed to save snip.");
     }
   };
 
   return (
-    <div
-      className={`min-h-screen py-10 px-4 ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-black"
-      }`}
-    >
-      <div
-        className={`max-w-4xl mx-auto p-8 rounded-xl shadow ${
-          theme === "dark" ? "bg-gray-800" : "bg-white"
-        }`}
-      >
+    <div className={`min-h-screen py-10 px-4 ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-black"}`}>
+      <div className={`max-w-4xl mx-auto p-8 rounded-xl shadow ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
         <h1 className="text-3xl font-bold mb-6 text-center">
           {pasteId ? "Edit Snip" : "Create a New Snip"}
         </h1>
@@ -85,16 +93,15 @@ function Home() {
 
           <div className="flex justify-end">
             <button
-              onClick={createPaste}
+              onClick={handleSubmit}
               className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-md hover:bg-indigo-700 transition"
             >
-              {pasteId ? "Update Snip" : "Create Snip"}
+              {pasteId ? "Update Snip" : "Save Snip"}
             </button>
           </div>
         </div>
       </div>
 
-      {/* List of Snips */}
       <div className="mt-12">
         <Snips />
       </div>

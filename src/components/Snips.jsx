@@ -1,20 +1,57 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFromPaste } from "../Redux/PasteSlice";
+import { removeFromPaste, setAllPastes } from "../Redux/PasteSlice";
 import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { getFirestore, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { app } from "../Firebase/firebase";
+import { query, where } from "firebase/firestore";
 
 function Snips() {
-  const pastes = useSelector((state) => state.paste.pastes);
   const [searchTerm, setSearchTerm] = useState("");
+  const pastes = useSelector((state) => state.paste.pastes);
+  const user = useSelector((state) => state.user.currentUser);
   const dispatch = useDispatch();
+  const db = getFirestore(app);
+
+  // Fetch snips from Firestore
+  useEffect(() => {
+    const fetchSnips = async () => {
+  try {
+    if (!user?.uid) return;
+
+    const q = query(collection(db, "snips"), where("uid", "==", user.uid));
+    const snapshot = await getDocs(q);
+
+    const snipsData = snapshot.docs.map(doc => ({
+      ...doc.data(),
+      _id: doc.id
+    }));
+
+    dispatch(setAllPastes(snipsData));
+  } catch (err) {
+    console.error("Failed to fetch snips:", err);
+    toast.error("Failed to load snips");
+  }
+};
+
+    if (user) fetchSnips();
+  }, [dispatch, db, user]);
 
   const filteredData = pastes.filter((paste) =>
     paste.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleDelete = (id) => {
-    dispatch(removeFromPaste(id));
+  //  Delete snip from Firestore + Redux
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, "snips", id));
+      dispatch(removeFromPaste(id));
+      toast.success("Snip deleted");
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error("Failed to delete");
+    }
   };
 
   const handleCopy = async (text) => {
@@ -24,23 +61,11 @@ function Snips() {
     }
 
     try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        textarea.style.position = "fixed";
-        textarea.style.top = "-1000px";
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textarea);
-      }
-      toast.success("Text copied to clipboard!");
+      await navigator.clipboard.writeText(text);
+      toast.success("Copied!");
     } catch (err) {
       console.error("Copy failed:", err);
-      toast.error("Failed to copy");
+      toast.error("Copy failed");
     }
   };
 
@@ -67,9 +92,7 @@ function Snips() {
             className="bg-white rounded-lg shadow p-6 mb-4 border border-gray-200"
           >
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-xl font-semibold text-gray-800">
-                {paste.title}
-              </h3>
+              <h3 className="text-xl font-semibold text-gray-800">{paste.title}</h3>
               <span className="text-sm text-gray-500">
                 {formatDate(paste.createdAt)}
               </span>
@@ -108,7 +131,7 @@ function Snips() {
           </div>
         ))
       ) : (
-        <p className="text-gray-500 text-center">No pastes found.</p>
+        <p className="text-gray-500 text-center">No snips found.</p>
       )}
     </div>
   );

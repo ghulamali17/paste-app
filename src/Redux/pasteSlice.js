@@ -2,9 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 
 const initialState = {
-  pastes: localStorage.getItem("pastes")
-    ? JSON.parse(localStorage.getItem("pastes"))
-    : [],
+  pastes: [], 
 };
 
 export const pasteSlice = createSlice({
@@ -12,39 +10,39 @@ export const pasteSlice = createSlice({
   initialState,
   reducers: {
     addToPaste: (state, action) => {
-      const paste = action.payload;
-      state.pastes.push(paste);
-      localStorage.setItem("pastes", JSON.stringify(state.pastes));
+      state.pastes.push(action.payload);
       toast.success("Snip Created Successfully");
     },
     updateToPaste: (state, action) => {
       const updatedPaste = action.payload;
-      const index = state.pastes.findIndex(
-        (item) => item._id === updatedPaste._id
-      );
+      const index = state.pastes.findIndex(p => p._id === updatedPaste._id);
       if (index >= 0) {
         state.pastes[index] = updatedPaste;
-        localStorage.setItem("pastes", JSON.stringify(state.pastes));
         toast.success("Snip Updated!");
       } else {
         toast.error("Paste not found!");
       }
     },
-    resetAllPastes: (state) => {
-      state.pastes = [];
-      localStorage.removeItem("pastes");
-      toast.success("All Pastes Deleted!");
-    },
     removeFromPaste: (state, action) => {
-      state.pastes = state.pastes.filter((item) => item._id !== action.payload);
-      localStorage.setItem("pastes", JSON.stringify(state.pastes));
+      state.pastes = state.pastes.filter(p => p._id !== action.payload);
       toast.success("Snip Removed!");
     },
-    
+    resetAllPastes: (state) => {
+      state.pastes = [];
+      toast.success("All Pastes Deleted!");
+    },
+    setAllPastes: (state, action) => {
+      state.pastes = action.payload;
+    },
   },
 });
 
-export const { addToPaste, updateToPaste, resetAllPastes, removeFromPaste } =
-  pasteSlice.actions;
+export const {
+  addToPaste,
+  updateToPaste,
+  removeFromPaste,
+  resetAllPastes,
+  setAllPastes,
+} = pasteSlice.actions;
 
 export default pasteSlice.reducer;
