@@ -38,7 +38,6 @@ function Home() {
 
     if (pasteId) {
       dispatch(updateToPaste(paste));
-      toast.success("Snip updated!");
     } else {
       dispatch(addToPaste(paste));
       setTitle("");

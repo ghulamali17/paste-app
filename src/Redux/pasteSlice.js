@@ -25,7 +25,7 @@ export const pasteSlice = createSlice({
       if (index >= 0) {
         state.pastes[index] = updatedPaste;
         localStorage.setItem("pastes", JSON.stringify(state.pastes));
-        toast.success("Paste Updated");
+        toast.success("Snip Updated");
       } else {
         toast.error("Paste not found");
       }
