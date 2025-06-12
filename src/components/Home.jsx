@@ -41,7 +41,6 @@ function Home() {
       toast.success("Snip updated!");
     } else {
       dispatch(addToPaste(paste));
-      toast.success("Snip created!");
       setTitle("");
       setValue("");
     }

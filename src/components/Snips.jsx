@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFromPaste } from "../Redux/PasteSlice";
 import { Link } from "react-router-dom";
-import { toast } from "react-hot-toast";        
+import { toast } from "react-hot-toast";
 
 function Snips() {
   const pastes = useSelector((state) => state.paste.pastes);
@@ -29,7 +29,7 @@ function Snips() {
       } else {
         const textarea = document.createElement("textarea");
         textarea.value = text;
-        textarea.style.position = "fixed"; 
+        textarea.style.position = "fixed";
         textarea.style.top = "-1000px";
         document.body.appendChild(textarea);
         textarea.focus();
@@ -80,10 +80,12 @@ function Snips() {
             <div className="flex flex-wrap gap-2">
               <Link
                 to={`/pastes/${paste._id}`}
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
               >
                 Edit
               </Link>
+
               <Link
                 to={`/snips/${paste._id}/view`}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
