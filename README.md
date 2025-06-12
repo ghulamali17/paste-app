@@ -1,8 +1,35 @@
-# React + Vite
+# 📝 Paste App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A lightweight web app to create, view, update, and manage text snippets.  
+Perfect for quickly storing and sharing code blocks, notes, or ideas.
 
-Currently, two official plugins are available:
+Built using **React**, **Tailwind CSS**, **Redux**, and **Vite** for fast and responsive performance.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
+
+## 🚀 Features
+
+- 🔍 Search snippets by title
+- 🧾 Create, update, and delete text pastes
+- 📋 Copy content to clipboard
+- 🕒 Displays creation date
+- 💾 Local state management with Redux
+
+---
+
+## 🛠️ Tech Stack
+
+- React
+- Redux Toolkit
+- Tailwind CSS
+- React Router
+
+---
+
+## 📦 Installation
+
+```bash
+git clone https://github.com/ghulamali17/paste-app
+cd paste-app
+npm install
+npm run dev
