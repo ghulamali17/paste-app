@@ -25,20 +25,20 @@ export const pasteSlice = createSlice({
       if (index >= 0) {
         state.pastes[index] = updatedPaste;
         localStorage.setItem("pastes", JSON.stringify(state.pastes));
-        toast.success("Snip Updated");
+        toast.success("Snip Updated!");
       } else {
-        toast.error("Paste not found");
+        toast.error("Paste not found!");
       }
     },
     resetAllPastes: (state) => {
       state.pastes = [];
       localStorage.removeItem("pastes");
-      toast.success("All Pastes Deleted");
+      toast.success("All Pastes Deleted!");
     },
     removeFromPaste: (state, action) => {
       state.pastes = state.pastes.filter((item) => item._id !== action.payload);
       localStorage.setItem("pastes", JSON.stringify(state.pastes));
-      toast.success("Paste Removed");
+      toast.success("Snip Removed!");
     },
     
   },
