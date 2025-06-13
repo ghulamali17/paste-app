@@ -1,5 +1,3 @@
-Certainly! Here's the entire updated `README.md` content ready for copy-paste into your project:
-
 ---
 
 ````markdown
