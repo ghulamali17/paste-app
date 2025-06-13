@@ -9,20 +9,31 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
 } from "../Firebase/firebase.js";
-import { getFirestore, doc, setDoc } from "firebase/firestore"; 
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import toast from "react-hot-toast";
 
 function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const auth = getAuth(app); 
-  const db = getFirestore(app); 
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // User Sign Up Firebase
   const sendData = async (e) => {
     e.preventDefault();
+
     if (!email || !password || !name) {
       toast.error("All fields are required!");
+      return;
+    }
+
+    if (!navigator.onLine) {
+      toast.error("You're offline. Please check your internet connection.");
       return;
     }
 
@@ -32,36 +43,41 @@ function SignUp() {
         email,
         password
       );
-
       const user = userCredential.user;
 
-      // Add user info to Firestore
+      // Save user info to Firestore
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         name,
         email,
         createdAt: new Date().toISOString(),
       });
-      dispatch(
-        setUser({
-          uid: user.uid,
-          email: user.email,
-          name: name || user.displayName || "", 
-        })
-      );
+
+      const plainUser = {
+        uid: user.uid,
+        email: user.email,
+        name,
+      };
+
+      dispatch(setUser(plainUser));
+      localStorage.setItem("user", JSON.stringify(plainUser));
 
       toast.success("Account created successfully!");
-      Navigate("/")
+      navigate("/");
     } catch (err) {
-      if (
-        err.code === "auth/user-not-found" ||
-        err.code === "auth/wrong-password"
-      ) {
-        toast.error("Wrong Email or Password");
+      console.error("Signup Error:", err);
+
+      if (err.code === "auth/email-already-in-use") {
+        toast.error("This email is already registered.");
+      } else if (err.code === "auth/invalid-email") {
+        toast.error("Invalid email format.");
+      } else if (err.code === "auth/weak-password") {
+        toast.error("Password should be at least 6 characters.");
+      } else if (err.code === "auth/network-request-failed") {
+        toast.error("Network error. Please check your internet connection.");
       } else {
-        toast.error("Email-already-in-use");
+        toast.error("Something went wrong. Please try again.");
       }
-      console.error(err);
     }
   };
 

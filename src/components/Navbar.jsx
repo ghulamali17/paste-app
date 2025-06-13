@@ -2,33 +2,58 @@ import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../Redux/ThemeSlice";
-import { clearUser } from "../Redux/userSlice"; // 👈 import clearUser
+import { clearUser } from "../Redux/userSlice";
 import { FiMenu, FiX } from "react-icons/fi";
+import { getAuth, signOut } from "firebase/auth";
 
 function Navbar() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const theme = useSelector((state) => state.theme.mode);
-  const currentUser = useSelector((state) => state.user.currentUser); // 👈 get currentUser
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const theme = useSelector((state) => state.theme.mode);
+  const currentUser = useSelector((state) => state.user.currentUser);
+
+  // Dark / light
   useEffect(() => {
     const root = window.document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
+    theme === "dark"
+      ? root.classList.add("dark")
+      : root.classList.remove("dark");
   }, [theme]);
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => setMenuOpen(false);
 
-  const handleLogout = () => {
-    dispatch(clearUser());
-    localStorage.removeItem("user");
-    navigate("/login");
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      await signOut(getAuth());
+      dispatch(clearUser());
+      localStorage.removeItem("user");
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
+
+  // User Name and Profile In Navbar
+  const UserProfile = () =>
+    currentUser ? (
+      <li className="flex items-center gap-2">
+        <img
+          src="https://www.gravatar.com/avatar?d=mp&s=32"
+          alt="profile"
+          className="w-8 h-8 rounded-full border cursor-pointer"
+        />
+        <span className="text-sm font-medium text-gray-700 dark:text-white cursor-pointer">
+          {(
+            currentUser?.name || currentUser?.email?.split("@")[0]
+          )?.toUpperCase()}
+        </span>
+      </li>
+    ) : null;
 
   return (
     <nav className="bg-white dark:bg-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700">
@@ -78,6 +103,8 @@ function Navbar() {
             </button>
           </li>
 
+          <UserProfile />
+
           <li>
             {currentUser ? (
               <button
@@ -87,10 +114,7 @@ function Navbar() {
                 Logout
               </button>
             ) : (
-              <NavLink
-                to="/login"
-                className="text-indigo-600 hover:underline"
-              >
+              <NavLink to="/login" className="text-indigo-600 hover:underline">
                 Login
               </NavLink>
             )}
@@ -137,6 +161,9 @@ function Navbar() {
               {theme === "light" ? "Dark Mode" : "Light Mode"}
             </button>
           </li>
+
+          <UserProfile />
+
           <li>
             {currentUser ? (
               <button

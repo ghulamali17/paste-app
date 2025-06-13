@@ -23,6 +23,7 @@ function Login() {
   const signInUser = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -31,15 +32,30 @@ function Login() {
       );
       const user = userCredential.user;
 
-      // ✅ Save to Redux and localStorage
-      dispatch(setUser(user));
-      localStorage.setItem("user", JSON.stringify(user));
+      const plainUser = {
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName || user.email.split("@")[0],
+      };
+
+      // Save to Redux and localStorage
+      dispatch(setUser(plainUser));
+      localStorage.setItem("user", JSON.stringify(plainUser));
 
       toast.success("Login Successful");
       navigate("/");
     } catch (err) {
-      toast.error("Wrong Email or Password");
-      console.error(err.message);
+      console.error(err);
+      if (err.code === "auth/network-request-failed") {
+        toast.error("No internet connection. Please check your network.");
+      } else if (
+        err.code === "auth/user-not-found" ||
+        err.code === "auth/wrong-password"
+      ) {
+        toast.error("Wrong Email or Password");
+      } else {
+        toast.error("Login failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

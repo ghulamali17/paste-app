@@ -2,20 +2,33 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import Snips from "./Snips";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  addDoc,
+} from "firebase/firestore";
 import { app } from "../Firebase/firebase";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { addToPaste, updateToPaste } from "../Redux/PasteSlice";
 
 function Home() {
-  const db = getFirestore(app);
-  const { id: pasteId } = useParams();
-  const theme = useSelector((state) => state.theme.mode);
-  const user = useSelector((state) => state.user.currentUser);
-
   const [title, setTitle] = useState("");
   const [value, setValue] = useState("");
 
-  // Load snip data when editing
+  const theme = useSelector((state) => state.theme.mode);
+  const user = useSelector((state) => state.user.currentUser);
+
+  const db = getFirestore(app);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { id: pasteId } = useParams();
+
+  // Fetch and show Snips
   useEffect(() => {
     const fetchSnip = async () => {
       if (pasteId) {
@@ -34,9 +47,12 @@ function Home() {
     fetchSnip();
   }, [pasteId]);
 
+  // Submit handle
   const handleSubmit = async () => {
     if (!user) return toast.error("Please log in to save a snip.");
-    if (!title.trim() || !value.trim()) return toast.error("Both fields are required.");
+    if (!title.trim() || !value.trim()) {
+      return toast.error("Both fields are required.");
+    }
 
     const snipData = {
       uid: user.uid,
@@ -48,10 +64,13 @@ function Home() {
     try {
       if (pasteId) {
         await setDoc(doc(db, "snips", pasteId), snipData);
-        toast.success("Snip updated.");
+        dispatch(updateToPaste({ ...snipData, _id: pasteId }));
+        setTitle("");
+        setValue("");
+        navigate("/");
       } else {
-        await addDoc(collection(db, "snips"), snipData);
-        toast.success("Snip saved.");
+        const newDocRef = await addDoc(collection(db, "snips"), snipData);
+        dispatch(addToPaste({ ...snipData, _id: newDocRef.id }));
         setTitle("");
         setValue("");
       }
@@ -62,8 +81,16 @@ function Home() {
   };
 
   return (
-    <div className={`min-h-screen py-10 px-4 ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-black"}`}>
-      <div className={`max-w-4xl mx-auto p-8 rounded-xl shadow ${theme === "dark" ? "bg-gray-800" : "bg-white"}`}>
+    <div
+      className={`min-h-screen py-10 px-4 ${
+        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-black"
+      }`}
+    >
+      <div
+        className={`max-w-4xl mx-auto p-8 rounded-xl shadow ${
+          theme === "dark" ? "bg-gray-800" : "bg-white"
+        }`}
+      >
         <h1 className="text-3xl font-bold mb-6 text-center">
           {pasteId ? "Edit Snip" : "Create a New Snip"}
         </h1>

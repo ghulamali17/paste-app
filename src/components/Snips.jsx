@@ -47,13 +47,13 @@ function Snips() {
     try {
       await deleteDoc(doc(db, "snips", id));
       dispatch(removeFromPaste(id));
-      toast.success("Snip deleted");
     } catch (err) {
       console.error("Delete error:", err);
       toast.error("Failed to delete");
     }
   };
 
+  // Handle Copy 
   const handleCopy = async (text) => {
     if (!text) {
       toast.error("Nothing to copy!");
@@ -69,6 +69,7 @@ function Snips() {
     }
   };
 
+  // Date 
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-US", {
       day: "numeric",
